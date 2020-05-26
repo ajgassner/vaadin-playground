@@ -10,7 +10,11 @@ class MessageRestService(private val dispatcher: UiAwareBufferingEventDispatcher
 
     @PostMapping
     fun postMessage(@RequestParam("message") message: String): ResponseEntity<String> {
-        dispatcher.dispatch(MessagePostedEvent(UUID.randomUUID(), message))
+        val event = MessagePostedEvent(UUID.randomUUID(), message)
+        (1..100).forEach { _ ->
+            // dispatch this event multiple times for demo purposes
+            dispatcher.dispatch(event)
+        }
         return ResponseEntity.ok("message posted")
     }
 }
