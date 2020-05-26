@@ -20,8 +20,8 @@ Also see blog post TODO!!!!!!!!!!!!!!
 Open `http://localhost:8080/` in the browser.
 
 Credentials:  
-Username: user  
-Password: pw
+Username: *user*  
+Password: *pw*
 
 For the sake of simplicity we call a simple REST service to simulate data events.
 Use following command or any other HTTP client to call the rest service to post messages:  
