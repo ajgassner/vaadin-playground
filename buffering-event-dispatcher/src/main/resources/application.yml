@@ -3,3 +3,5 @@ spring:
     user:
       name: user
       password: "{noop}pw"
+vaadin:
+  heartbeatInterval: 5 # clean / detach UIs after 3 missed intervals: 5 * 3 = 15 seconds, just for demo purposes

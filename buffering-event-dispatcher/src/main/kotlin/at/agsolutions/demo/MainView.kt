@@ -2,7 +2,6 @@ package at.agsolutions.demo
 
 import com.vaadin.flow.component.AttachEvent
 import com.vaadin.flow.component.DetachEvent
-import com.vaadin.flow.component.html.Div
 import com.vaadin.flow.component.html.H3
 import com.vaadin.flow.component.html.Span
 import com.vaadin.flow.component.orderedlayout.VerticalLayout
@@ -14,18 +13,18 @@ import com.vaadin.flow.router.Route
 class MainView(private val dispatcher: UiAwareBufferingEventDispatcher) : VerticalLayout() {
 
     init {
-        add(H3("Posted Messages"))
+        add(H3("Posted Messages"), Span("Call REST service to post new messages here"))
     }
 
     override fun onAttach(event: AttachEvent) {
         dispatcher.register(this, MessagePostedEvent::class) { events ->
-            logger().info("got events")
-            events.forEach { event -> add(Span("${event.id}: ${event.message}, ${SecurityUtils.user?.username ?: "Niemand"}")) }
+            val username = SecurityUtils.user?.username ?: "unauthorized"
+            events.forEach { event -> add(Span("ID: ${event.id}, Message: ${event.message}, Username: $username")) }
         }
     }
 
     override fun onDetach(event: DetachEvent) {
-        // TODO: check this gts called when session gets destroyed
+        // do not forget to unregister the consumer!
         dispatcher.unregister(this)
     }
 }

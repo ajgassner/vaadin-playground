@@ -23,7 +23,7 @@ import kotlin.reflect.KClass
 class UiAwareBufferingEventDispatcher(@Qualifier("uiTaskExecutor") val taskExecutor: AsyncTaskExecutor) {
 
     companion object {
-        const val BUFFER_TIMESPAN_IN_MILLIS: Long = 500L
+        private const val BUFFER_TIMESPAN_IN_MILLIS: Long = 500L
     }
 
     interface Registration {
@@ -52,8 +52,8 @@ class UiAwareBufferingEventDispatcher(@Qualifier("uiTaskExecutor") val taskExecu
     fun subscribe() {
         if (subscribe == null || subscribe!!.isDisposed) {
             subscribe = subject.observeOn(scheduler)
-                .buffer(BUFFER_TIMESPAN_IN_MILLIS, TimeUnit.MILLISECONDS)
-                .subscribe { this.dispatchToHandlers(it) }
+                    .buffer(BUFFER_TIMESPAN_IN_MILLIS, TimeUnit.MILLISECONDS)
+                    .subscribe { this.dispatchToHandlers(it) }
         }
     }
 
@@ -73,9 +73,11 @@ class UiAwareBufferingEventDispatcher(@Qualifier("uiTaskExecutor") val taskExecu
         }
     }
 
-    /** registers to an event by type.
+    /**
+     * Registers to an event by type.
      * Registration is bound to a view, which is needed to synchronize view state and obtain SecurityContext.
-     * Returns Registration, which can be used to unregister (optional @see .unregister by view can be used). */
+     * Returns Registration, which can be used to unregister (optional .unregister by view can be used).
+     */
     fun <T : Any> register(view: Component, eventType: KClass<T>, handler: (List<T>) -> Unit): Registration {
         synchronized(eventTypeHandlers) {
             val authenticatedHandler = BufferedEventHandler(view, handler)
@@ -91,7 +93,7 @@ class UiAwareBufferingEventDispatcher(@Qualifier("uiTaskExecutor") val taskExecu
         }
     }
 
-    /** unregister all handlers for a given view */
+    /** unregister all handlers for a given component */
     fun unregister(view: Component) {
         synchronized(eventTypeHandlers) {
             val typesToRemove = mutableListOf<KClass<*>>()
@@ -105,11 +107,9 @@ class UiAwareBufferingEventDispatcher(@Qualifier("uiTaskExecutor") val taskExecu
         }
     }
 
-
     /**
-     * dispatched list of buffered events to handlers.
+     * Dispatches list of buffered events to handlers.
      * This will be called within rx-scheduler/threadpool.
-     * Dispatching will be done view @see org.springframework.core.task.AsyncTaskExecutor)
      */
     @Suppress("UNCHECKED_CAST")
     private fun dispatchToHandlers(events: List<Any>) {
@@ -125,15 +125,16 @@ class UiAwareBufferingEventDispatcher(@Qualifier("uiTaskExecutor") val taskExecu
     private fun pairedByEvents(events: List<Any>): List<Pair<List<Any>, MutableList<BufferedEventHandler<*>>?>> {
         return synchronized(eventTypeHandlers) {
             events
-                .groupBy({ it::class }, { it })
-                .map { (type, events) -> events to eventTypeHandlers[type] }
+                    .groupBy({ it::class }, { it })
+                    .map { (type, events) -> events to eventTypeHandlers[type] }
         }
     }
 
     /**
-     * Sends list of buffered events to registered handlers, and synchronizes call to view state (@see com.vaadin.flow.component.UI.access(com.vaadin.flow.server.Command))
-     * and with session bound security context. Runs within TaskExecutor Thread.
-     * In case view is not bound to an UI or session, this call ends without any exception (handlers should only update UI and must not trigger and business logic)
+     * Sends a list of buffered events to registered handlers and synchronizes call to view state with session bound security context.
+     * Runs within TaskExecutor Thread.
+     * In case the view is not bound to an UI or session this call ends without any exception
+     * (handlers should only update UI and must not trigger any business logic)
      */
     private fun dispatchWithinUIContext(view: Component, handler: (List<*>) -> Unit, events: List<*>) {
         val ui = view.ui.orElse(null) ?: return
@@ -155,7 +156,7 @@ class UiAwareBufferingEventDispatcher(@Qualifier("uiTaskExecutor") val taskExecu
             } catch (e: UIDetachedException) {
                 // ignore exceptions (just UI updates)
             } catch (e: Exception) {
-                logger().error("unexpected exception while handling events $events bound to view $view", e)
+                logger().error("unexpected exception while handling events {} bound to view {}", events, view, e)
             } finally {
                 SecurityContextHolder.setContext(origCtx)
             }
