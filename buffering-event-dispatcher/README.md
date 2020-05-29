@@ -12,7 +12,7 @@ has following features:
 * Uses a thread pool provided by Spring
 * A simple replacement for a complex event bus
 
-Also see blog post TODO!!!!!!!!!!!!!!
+Also see blog post https://agsolutions.at/en/blog/security-context-aware-and-buffered-event-dispatching-for-asynchronous-ui-updates-with-vaadin/
 
 ## Run the demo
 `mvn spring-boot:run`

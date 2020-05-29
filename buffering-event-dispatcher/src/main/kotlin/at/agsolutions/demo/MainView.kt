@@ -29,7 +29,7 @@ class MainView(private val dispatcher: UiAwareBufferingEventDispatcher) : Vertic
         dispatcher.register(this, MessagePostedEvent::class) { bufferedEvents ->
             // usually for an UI update only the last of the buffered events is interesting for us
             val username = SecurityUtils.user?.username ?: "unauthorized"
-            add(Span("ID: ${bufferedEvents.last()}, Message: ${bufferedEvents.last().message}, Username: $username"))
+            add(Span("ID: ${bufferedEvents.last().id}, Message: ${bufferedEvents.last().message}, Username: $username"))
         }
     }
 
